@@ -1,0 +1,13 @@
+{
+  // "presets": ["@babel/preset-typescript"],
+    "plugins": [
+      [
+        "@babel/plugin-transform-react-jsx",
+        {
+          "pragma": "Molyb.createElement", // default pragma is React.createElement
+          "throwIfNamespace": false // defaults to true
+        }
+      ]
+    ]
+  }
+  
