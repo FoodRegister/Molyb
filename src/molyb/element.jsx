@@ -5,7 +5,7 @@ export function createElement(type, props, ...childrens) {
     return new MolybElement(type, props, ...childrens);
 }
 
-class MolybElement {
+export class MolybElement {
     constructor (type, props, ...childrens) {
         this.type = type;
         this.props = props;
@@ -13,7 +13,7 @@ class MolybElement {
     }
 
     render (container) {
-        if (this?.__element) return this.__element;
+        if (this.__element) return this.__element;
 
         this.__element = document.createElement(this.type);
         if (container) container.appendChild(this.__element);

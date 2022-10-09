@@ -35,7 +35,7 @@ const config = {
     rules: [
       {
         test: /^[A-Za-z_:\/\\\.]*\.(jsx|js)$/i,
-        loader: "babel-loader",
+        loader: path.join(__dirname, "src/webpack/loader"),
         exclude: ["/node_modules/"]
       },
       {

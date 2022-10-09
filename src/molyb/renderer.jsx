@@ -1,4 +1,6 @@
 
+import { MolybElement } from "molyb/element";
+
 const RENDER_COUNT = 20;
 const renderStack  = [];
 
@@ -16,7 +18,7 @@ function __render () {
     while (count < RENDER_COUNT && renderStack.length != 0) {
         const [container, element] = renderStack.splice(0, 1)[0];
         
-        if (typeof element === 'string' || element instanceof String) {
+        if (! (element instanceof MolybElement)) {
             if (container) container.append(element)
         } else element.render(container);
 
