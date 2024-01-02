@@ -61,6 +61,12 @@ class Component {
             parent.replaceChild(newComp, oldComp)
         }
     }
+
+    getNavigation () {
+        while (this.parent != undefined)
+            return this.parent.getNavigation();
+        return undefined;
+    }
 }
 
 class RouterComponent extends Component {
@@ -70,21 +76,39 @@ class RouterComponent extends Component {
         this.uri_path = "/"
         this.uri_args = []
     }
-
-    setRoutes(routes, route404) {
+    getNavigation() {
+        return this;
+    }
+    setRoutes(routes, route404, regex_routes=[]) {
         this.route404 = route404;
         this.routes   = routes;
+        this.regex_routes = regex_routes;
     }
+    is_regex_route (path) {
+        for (let [ regex, route ] of this.regex_routes)
+            if (regex.test(path))
+                return true;
+        
+        return false;
+    }
+    get_regex_route (path) {
+        for (let [ regex, route ] of this.regex_routes)
+            if (regex.test(path))
+                return route;
+        
+        return false;
+    }
+
     async get_route(path) {
-        let route = this.routes[path]
+        let route = this.is_regex_route(path) ? this.get_regex_route(path) : this.routes[path]
         if (route instanceof FetchComponent) route = await route.get();
     
-        this.routes[path] = route;
+        // this.routes[path] = route;
 
         return route;
     }
     async getCurrentComponent () {
-        if (this.routes[this.uri_path]) return await this.get_route(this.uri_path)
+        if (this.routes[this.uri_path] || this.is_regex_route(this.uri_path)) return await this.get_route(this.uri_path)
         
         return await this.route404();
     }
@@ -127,7 +151,6 @@ function createInput(placeholder, className="", inputClassName="", value="", pro
 }
 
 function getInputValue (input) {
-    console.log(input)
     return input.childNodes[0].value;
 }
 
