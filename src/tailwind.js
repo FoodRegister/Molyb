@@ -1,9 +1,15 @@
 /**
+ * Software provided under MIT License of Food Register
+ * 
  * Tailwind JIT CSS Compiler
  * 
  * -- Compile CSS at runtime on the client --
  * 
  * Allows ZERO CSS bundle size using only the tailwind config that is shipped with the config
+ * 
+ * The JIT Compiler uses the tailwind conventions to work, but do not use any software in relation with Tailwind Labs, Inc.
+ * We just want to thank them as a team for the great work provided on the CSS enhancement they created. 
+ * Here is the link to their projet and most important the MIT license of the project : https://github.com/tailwindlabs/tailwindcss/blob/master/LICENSE
  */
 
 const css_container = document.querySelector("style")
@@ -44,6 +50,7 @@ class _Tailwind {
         this.promises = [];
         this.tailwind_class_id = 0;
         this._class_cache = {};
+        this.shortcuts = {}
 
         this.fetch_config();
     }
@@ -64,12 +71,34 @@ class _Tailwind {
         for (let resolve of this.promises) resolve();
     }
 
+    bindClass (element, string) {
+        const cls = Tailwind.compile(undefined, string);
+
+        return [
+            async function add () {
+                const _cls = await cls;
+
+                for (const s of _cls)
+                    element.classList.add(s);
+            },
+            async function remove () {
+                const _cls = await cls;
+
+                for (const s of _cls)
+                    element.classList.remove(s);
+            }
+        ]
+    }
+
     forward = [ "material-icons-outlined" ]
     is_forward (cls) {
         return this.forward.includes(cls) || (cls.startsWith("group-") && !cls.includes(":"))
     }
     next_tailwind_class_id () {
         return this.tailwind_class_id ++;
+    }
+    createShortcut (name, result) {
+        this.shortcuts[name] = result;
     }
     async compile (element, string) {
         string = string.trim();
@@ -178,6 +207,10 @@ class _Tailwind {
         return attributes.join(":") + ":"
     }
     _compile(string) {
+        for (let shortcut in this.shortcuts) {
+            string = string.split(`s-${shortcut}`).join(this.shortcuts [shortcut]);
+        }
+
         const classes = string.split(" ")
 
         const array = []
@@ -252,7 +285,7 @@ class _Tailwind {
     to_custom(style) {
         if (! this.custom_regex.test(style)) return undefined;
 
-        return style.substring(1, style.length - 1);
+        return style.substring(1, style.length - 1).split("_").join(" ");
     }
     to_px (style) {
         if (! this.px_rule_regex.test(style)) return undefined;
@@ -306,6 +339,7 @@ class _Tailwind {
 
         if (style == "screen") return "--h: 100vh;";
         if (style == "full") return "--h: 100%;"
+        if (style == "min") return "--h: min-content;";
         if (px) return `--h: ${px}px;`;
         if (custom) return `--h: ${custom};`
         
@@ -317,8 +351,8 @@ class _Tailwind {
 
         const px = this.to_px(style)
         const custom = this.to_custom(style);
-
-        if (px) return `${padding}: ${px}px;`;
+        
+        if (px !== undefined && !isNaN(px)) return `${padding}: ${px}px;`;
         if (custom) return `${padding}: ${custom};`;
 
         console.log(`Could not load property ${style} for p${attr}`)
@@ -337,6 +371,7 @@ class _Tailwind {
         const px = this.to_px(style)
         const custom = this.to_custom(style);
         
+        if (style == "auto") return `${margin}: auto;`
         if (px !== undefined && !isNaN(px)) return `${margin}: ${px}px;`;
         if (custom) return `${margin}: ${custom};`;
 
@@ -406,6 +441,7 @@ class _Tailwind {
         "md"   : "box-shadow: 0 0px 6px 0px rgb(0 0 0 / 0.1);",
         "lg"   : "box-shadow: 0 0px 10px 0px rgb(0 0 0 / 0.1);",
         "xl"   : "box-shadow: 0 0px 15px 0px rgb(0 0 0 / 0.2);",
+        "xl_dt": "box-shadow: 0 5px 10px 0px rgb(0 0 0 / 0.1);",
         "none" : "box-shadow: 0 0 #0000;"
     }
     _tailwind_shadow (style) {
@@ -441,6 +477,13 @@ class _Tailwind {
     }
     _tailwind_relative (style) {
         return "position: relative;"
+    }
+    _tailwind_fixed (style) {
+        return "position: fixed;"
+    }
+
+    _tailwind_opacity (style) {
+        return `opacity: ${style};`
     }
 
     tailwind_pos (style) {
@@ -498,11 +541,19 @@ class _Tailwind {
     }
 
     _tailwind_border (style) {
+        if (style.startsWith("l-")) return "border-left"   + this._tailwind_border(style.substring(2)).substring(6)
+        if (style.startsWith("r-")) return "border-right"  + this._tailwind_border(style.substring(2)).substring(6)
+        if (style.startsWith("t-")) return "border-top"    + this._tailwind_border(style.substring(2)).substring(6)
+        if (style.startsWith("b-")) return "border-bottom" + this._tailwind_border(style.substring(2)).substring(6)
+        if (style == "dashed") return `border-style: dashed;`
+
         const size = style == "" ? 1 : this.to_int(style);
-        if (!isNaN(size)) return `border-width: ${size}px; border: solid;`;
+        const cust = this.to_custom(style)
+        if (cust !== undefined) return `border-width: ${cust};`;
+        if (!isNaN(size)) return `border-width: ${size}px;`;
 
         const color = this.to_color(style);
-        if (color) return `border-color: ${color};`
+        if (color) return `border: solid; border-color: ${color};`
 
         return `border: ${style};`
     }
@@ -516,6 +567,10 @@ class _Tailwind {
         if (style == "evenly")  return "justify-content: space-evenly;"
 
         throw `${style} not found for justify, and justify is fully implemented`;
+    }
+
+    _tailwind_whitespace (style) {
+        if (style == "nowrap") return "white-space: nowrap;"
     }
 }
 
