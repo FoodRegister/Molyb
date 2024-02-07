@@ -1,0 +1,6 @@
+{
+    "scripts": {
+      "dev": "tsc-watch --onSuccess \"npm run cp\"",
+      "cp": "bash cpassets.sh"
+    }
+}
