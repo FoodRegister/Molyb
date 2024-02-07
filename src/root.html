@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.5">
+    <title>Molyb</title>
+
+    <link rel="shortcut icon" href="assets/foodregister.png" type="image/x-icon">
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Inter">
+
+    <link rel="prefetch" href="assets/tailwind.config.json">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+      rel="stylesheet">
+
+    <script defer src="./js/framework.js"></script>
+    <script defer src="./js/tailwind.js"></script>
+
+    <style id="tailwind-css">
+        body {
+            margin: 0;
+            font-family: 'roboto';
+            overflow-x: hidden;
+        }
+        a {
+            text-decoration: none;
+        }
+
+        * {
+            --p: 0px;
+            --py: var(--p);
+            --px: var(--p);
+            --pt: var(--py);
+            --pb: var(--py);
+            --pl: var(--px);
+            --pr: var(--px);
+            --w: auto;
+            --h: auto;
+            padding-top:    var(--pt) !important;
+            padding-bottom: var(--pb) !important;
+            padding-left:   var(--pl) !important;
+            padding-right:  var(--pr) !important;
+            --duration: 0ms;
+
+            width:  calc(var(--w) - var(--pl) - var(--pr)) !important;
+            height: calc(var(--h) - var(--pb) - var(--pt)) !important;
+
+            transition-duration: var(--duration);
+
+            font-family: 'Inter';
+        }
+        p {
+            padding: 0;
+            margin:  0;
+        }
+        input {
+            --w: 100%;
+            border: none;
+            outline: none;
+        }
+        button {
+            border: none;
+            background: none;
+        }
+
+        @font-face {
+            font-family: Inter;
+            src: url(assets/Inter-VarFont.ttf);
+        }
+
+    </style>
+</head>
+<body>
+    
+</body>
+</html>
