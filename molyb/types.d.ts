@@ -13,4 +13,5 @@ declare global {
 export type Props = undefined | null | {
     className?: string,
     onclick  ?: EventListener<number>
+    src      ?: string
 };

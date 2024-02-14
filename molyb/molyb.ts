@@ -14,8 +14,11 @@ import { Component } from "./component.js";
 
 class _Molyb {
     private document_: DocumentType<number>;
+    private engine   : IntegralMutationEngine;
     useBridge (bridge: VirtualBridge<number>, evtEngine: EventEngine<number>) {
         let mutEngine = new IntegralMutationEngine(bridge);
+
+        this.engine = mutEngine;
 
         this.document_ = new DocumentType(mutEngine, evtEngine, "localhost");
     }
@@ -30,6 +33,7 @@ class _Molyb {
             if (props.className !== undefined) element.className = props.className;
 
             if (props.onclick !== undefined) element.addEventListener("click", props.onclick);
+            if (props.src     !== undefined) this.engine.setProperty(element.index, [ "src" ], props.src);
         }
 
         for (let child of childrens) {
